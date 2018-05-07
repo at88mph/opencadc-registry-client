@@ -55,8 +55,10 @@
           self
             ._get(serviceCapabilityURL, 'text/xml')
             .then(function(request) {
-              var serviceURL              
-              var doc = request.responseXML || new DOMParser().parseFromString(request.responseText)
+              var serviceURL
+              var doc =
+                request.responseXML ||
+                new DOMParser().parseFromString(request.responseText)
 
               var capabilityFields = doc.documentElement.getElementsByTagName(
                 'capability'
@@ -176,7 +178,7 @@
         },
         false
       )
-      
+
       request.withCredentials = true
       request.open('GET', url)
 
