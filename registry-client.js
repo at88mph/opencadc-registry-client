@@ -1,4 +1,4 @@
-;(function(Promise, XMLHttpRequest, DOMParser, undefined) {
+this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
   'use strict'
 
   if (!String.prototype.trim) {
@@ -190,4 +190,6 @@
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = Registry
   }
+
+  return Registry
 })(Promise, XMLHttpRequest, DOMParser)
