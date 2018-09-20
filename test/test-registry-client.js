@@ -25,7 +25,7 @@ describe('Registry tests', function() {
         'ivo://cadc.nrc.ca/tap',
         'ivo://ivoa.net/std/TAP',
         'uws:Sync',
-        false
+        null
       )
       .then(function(serviceURL) {
         done(
@@ -38,15 +38,63 @@ describe('Registry tests', function() {
       })
   })
 
-  // it('HTTPS service URL lookup', function(done) {
-  //   reg
-  //     .serviceURL('ivo://cadc.nrc.ca/tap', 'ivo://ivoa.net/std/TAP', 'uws:Sync', true)
-  //     .then(function(serviceURL) {
-  //       if ('https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap' !== serviceURL) {
-  //         done(`Wrong secure service URL returned >> (${serviceURL})`)
-  //       } else {
-  //         done()
-  //       }
-  //     })
-  // })
+  it('HTTP service basic auth URL lookup', function (done) {
+    reg = new Registry()
+    reg
+      .getServiceURL(
+        'ivo://cadc.nrc.ca/tap',
+        'ivo://ivoa.net/std/TAP',
+        'uws:Sync',
+        'basic'
+      )
+      .then(function(serviceURL) {
+        done(
+          'http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/auth-sync' !== serviceURL
+            ? `Wrong Service URL returned >> (${serviceURL})`
+            : undefined
+        )
+      }).catch(function (error) {
+        done(error)
+      })
+  })
+
+  it('HTTP service cookie URL lookup', function (done) {
+    reg = new Registry()
+    reg
+      .getServiceURL(
+        'ivo://cadc.nrc.ca/tap',
+        'ivo://ivoa.net/std/TAP',
+        'uws:Sync',
+        'cookie'
+      )
+      .then(function(serviceURL) {
+        done(
+          'http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/sync' !== serviceURL
+            ? `Wrong Service URL returned >> (${serviceURL})`
+            : undefined
+        )
+      }).catch(function (error) {
+        done(error)
+      })
+  })
+
+  it('HTTP service TLS URL lookup', function (done) {
+    reg = new Registry()
+    reg
+      .getServiceURL(
+        'ivo://cadc.nrc.ca/tap',
+        'ivo://ivoa.net/std/TAP',
+        'uws:Sync',
+        'tls'
+      )
+      .then(function(serviceURL) {
+        done(
+          'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/sync' !== serviceURL
+            ? `Wrong Service URL returned >> (${serviceURL})`
+            : undefined
+        )
+      }).catch(function (error) {
+        done(error)
+      })
+  })
 })

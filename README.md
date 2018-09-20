@@ -29,12 +29,46 @@ var registryClient = new Registry({resourceCapabilitiesEndPoint:'http://www.mysi
 ```
 var registryClient = new Registry()
 
-// Look up the TAP service.
+// Look up the TAP service with cookie authentication.
 registryClient.getServiceURL(
         'ivo://cadc.nrc.ca/tap',
         'ivo://ivoa.net/std/TAP',
         'uws:Sync',
-        false
+        'cookie'
+      )
+      .then(function(serviceURL) {
+        // Hit the serviceURL
+      }).catch(function(err) {
+        console.error('Error obtaining Service URL > ' + err)
+      })
+```
+
+```
+var registryClient = new Registry()
+
+// Look up the TAP service with TLS authentication (HTTPS).
+registryClient.getServiceURL(
+        'ivo://cadc.nrc.ca/tap',
+        'ivo://ivoa.net/std/TAP',
+        'uws:Sync',
+        'tls'
+      )
+      .then(function(serviceURL) {
+        // Hit the serviceURL
+      }).catch(function(err) {
+        console.error('Error obtaining Service URL > ' + err)
+      })
+```
+
+```
+var registryClient = new Registry()
+
+// Look up the TAP service with Basic authentication (auth-sync endpoint).
+registryClient.getServiceURL(
+        'ivo://cadc.nrc.ca/tap',
+        'ivo://ivoa.net/std/TAP',
+        'uws:Sync',
+        'basic'
       )
       .then(function(serviceURL) {
         // Hit the serviceURL

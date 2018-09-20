@@ -26,6 +26,12 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
 
     var options = opts || {}
 
+    this.AUTH_TYPES = {
+      'basic': 'ivo://ivoa.net/sso#BasicAA',
+      'cookie': 'ivo://ivoa.net/sso#cookie',
+      'tls': 'ivo://ivoa.net/sso#tls-with-certificate'
+    }
+
     this.LINE_CHECKER = /^[\w]+.*$/
     this.resourceCapabilitiesURL =
       options.resourceCapabilitiesEndPoint ||
@@ -38,14 +44,14 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
    * @param {String} resourceURI   The Resource URI to lookup.
    * @param {String} standardURI  The Standard ID URI to lookup.
    * @param {String} interfaceURI The URI of the interface type to pull down.
-   * @param {boolean} secureFlag  Whether to look for HTTPS access URLs.  Requires client certificate.
+   * @param {String} authType  What type of auth to look up ('basic', 'cookie', 'tls').  Optional, defaults to null.
    * @returns {Promise}
    */
   Registry.prototype.getServiceURL = function(
     resourceURI,
     standardURI,
     interfaceURI,
-    secureFlag
+    authType
   ) {
     var self = this
     return new Promise(function(resolve, reject) {
@@ -76,11 +82,10 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
                       'securityMethod'
                     )
                     if (
-                      ((secureFlag === false && securityMethods.length === 0) ||
-                        (secureFlag === true &&
+                      ((!authType && securityMethods.length === 0) ||
+                        (authType &&
                           securityMethods.length > 0 &&
-                          securityMethods[0].getAttribute('standardID') ===
-                            'ivo://ivoa.net/sso#tls-with-certificate')) &&
+                          securityMethods[0].getAttribute('standardID') === self.AUTH_TYPES[authType.toLowerCase()])) &&
                       nextInterface.getAttribute('xsi:type') === interfaceURI
                     ) {
                       // Actual URL value.
