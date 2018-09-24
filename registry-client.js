@@ -109,11 +109,11 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
               }
             })
             .catch(function(err) {
-              console.error('Error obtaining Service URL > ' + err)
+              console.error('Error obtaining Service URL > ' + (err.error ? err.error : err))
             })
         })
         .catch(function(err) {
-          console.error('Error obtaining Capability URL > ' + err)
+          console.error('Error obtaining Capability URL > ' + (err.error ? err.error : err))
         })
     })
   }
@@ -152,7 +152,7 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
           }
         })
         .catch(function(err) {
-          console.error('Error obtaining capability URL > ' + err)
+          console.error('Error obtaining capability URL > ' + (err.error ? err.error : err))
         })
     })
   }
