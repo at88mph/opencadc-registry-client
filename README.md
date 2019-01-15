@@ -1,4 +1,4 @@
-# opencadc-registry-client
+# opencadc-registry-client (1.1.0)
 
 Registry client for CADC and CANFAR services.
 
@@ -21,7 +21,7 @@ var registryClient = new Registry({resourceCapabilitiesEndPoint:'http://www.mysi
 
 | Function                                                            | Description                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `getServiceURL(resourceURI, standardURI, interfaceURI, authType)` | <p><h4>Obtain a service URL endpoint for the given resource and standard IDs.</h4></p><p>`{String} resourceURI The Resource URI to lookup.`</p><p>`{String} standardURI The Standard ID URI to lookup.`</p><p>`{String} interfaceURI The URI of the interface type to pull down.`</p><p>`{String} secureFlag What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to null.`</p><p>`@returns {Promise}`</p> |
+| `getServiceURL(resourceURI, standardURI, interfaceURI, authType, preferInsecure)` | <p><h4>Obtain a service URL endpoint for the given resource and standard IDs.</h4></p><p>`{String} resourceURI The Resource URI to lookup.`</p><p>`{String} standardURI The Standard ID URI to lookup.`</p><p>`{String} interfaceURI The URI of the interface type to pull down.`</p><p>`{String} secureFlag What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to null.`</p><p>`{Boolean} preferInsecure Prefer plain HTTP URLs if true.  Default is null (or false) to return HTTPS URLs.`</p><p>`@returns {Promise}`</p> |
 | `getCapabilityURL(uri)`                                                | <p><h4>Obtain the capabilities URL for the given URI.</h4></p><p>`{String} uri The URI to look up.`</p><p>`@returns {Promise}`</p>                                                                                                                                                                                                                                                                                |
 
 ### Obtaining a Service URL
@@ -69,6 +69,28 @@ registryClient.getServiceURL(
         'ivo://ivoa.net/std/TAP',
         'uws:Sync',
         'basic'
+      )
+      .then(function(serviceURL) {
+        // Hit the serviceURL
+      }).catch(function(err) {
+        console.error('Error obtaining Service URL > ' + err)
+      })
+```
+
+#### Obtaining an insecure Service URL
+This is only useful (and recommended) for Service URLs that may gain some performance by calling an HTTP URL rather
+than suffer the potential latency of HTTPS, such as data uploads and downloads.
+
+```
+var registryClient = new Registry()
+
+// Look up the TAP service with Basic authentication (auth-sync endpoint).
+registryClient.getServiceURL(
+        'ivo://cadc.nrc.ca/tap',
+        'ivo://ivoa.net/std/TAP',
+        'uws:Sync',
+        'basic',
+        true // Prefer insecure.
       )
       .then(function(serviceURL) {
         // Hit the serviceURL

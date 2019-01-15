@@ -1,11 +1,11 @@
-this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
+this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
   'use strict'
 
-  if (!String.prototype.trim) {
-    ;(function() {
+  if (!String.prototype.trim) {;
+    (function () {
       // Make sure we trim BOM and NBSP
       var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
-      String.prototype.trim = function() {
+      String.prototype.trim = function () {
         return this.replace(rtrim, '')
       }
     })()
@@ -15,13 +15,12 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
    * Registry client constructor.
    *
    * @param {{}} opts   Options to pass in.
-   *        {opts.resourceCapabilitiesEndPoint='http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/resource-caps'}
+   *        {opts.resourceCapabilitiesEndPoint='https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/resource-caps'}
    * @constructor
    */
   function Registry(opts) {
     var defaultOptions = {
-      resourceCapabilitiesEndPoint:
-        'http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/resource-caps'
+      resourceCapabilitiesEndPoint: 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/resource-caps'
     }
 
     var options = opts || {}
@@ -38,6 +37,10 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
       defaultOptions.resourceCapabilitiesEndPoint
   }
 
+  Registry.prototype.getResourceCapabilities = function (serviceCapabilityURL) {
+    return this._get(serviceCapabilityURL, 'text/xml')
+  }
+
   /**
    * Obtain a service URL endpoint for the given resource and standard IDs
    *
@@ -45,42 +48,39 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
    * @param {String} standardURI  The Standard ID URI to lookup.
    * @param {String} interfaceURI The URI of the interface type to pull down.
    * @param {String} authType  What type of auth to look up ('basic', 'cookie', 'tls').  Optional, defaults to null.
+   * @param {String} preferInsecure  Prefer plain HTTP URLs if True.  Default is null (or false) to return HTTPS URLs.
    * @returns {Promise}
    */
-  Registry.prototype.getServiceURL = function(
+  Registry.prototype.getServiceURL = function (
     resourceURI,
     standardURI,
     interfaceURI,
-    authType
+    authType,
+    preferInsecure
   ) {
     var self = this
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       self
         .getCapabilityURL(resourceURI)
-        .then(function(serviceCapabilityURL) {
+        .then(function (serviceCapabilityURL) {
           self
-            ._get(serviceCapabilityURL, 'text/xml')
-            .then(function(request) {
-              var serviceURL
+            .getResourceCapabilities(serviceCapabilityURL)
+            .then(function (request) {
               var doc =
                 request.responseXML ||
                 new DOMParser().parseFromString(request.responseText)
-
-              var capabilityFields = doc.documentElement.getElementsByTagName(
-                'capability'
-              )
+              var capabilityFields = doc.documentElement.getElementsByTagName('capability')
 
               for (var i = 0, cfl = capabilityFields.length; i < cfl; i++) {
                 var next = capabilityFields[i]
 
                 if (next.getAttribute('standardID') === standardURI) {
                   var interfaces = next.getElementsByTagName('interface')
+                  var matchingServiceURLs = []
 
                   for (var j = 0, il = interfaces.length; j < il; j++) {
                     var nextInterface = interfaces[j]
-                    var securityMethods = nextInterface.getElementsByTagName(
-                      'securityMethod'
-                    )
+                    var securityMethods = nextInterface.getElementsByTagName('securityMethod')
                     if (
                       ((!authType && securityMethods.length === 0) ||
                         (authType &&
@@ -92,30 +92,53 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
                       var accessURLElements = nextInterface.getElementsByTagName(
                         'accessURL'
                       )
-                      serviceURL =
-                        accessURLElements.length > 0
-                          ? accessURLElements[0].childNodes[0].nodeValue
-                          : null
-                      break
+                      var serviceURL =
+                        accessURLElements.length > 0 ?
+                        accessURLElements[0].childNodes[0].nodeValue :
+                        null
+
+                      if (serviceURL) {
+                        matchingServiceURLs.push(serviceURL)
+                      }
                     }
                   }
                 }
               }
 
-              if (!serviceURL) {
+              if (matchingServiceURLs.length === 0) {
                 reject(new Error('No service URL found'))
               } else {
-                resolve(serviceURL)
+                var preferredServiceURLs = []
+                for (var msi = 0, msl = matchingServiceURLs.length; msi < msl; msi++) {
+                  var nextURL = matchingServiceURLs[msi]
+                  if (preferInsecure === true && nextURL.indexOf('http://') === 0) {
+                    preferredServiceURLs.push(nextURL)
+                  }
+                }
+                if (preferredServiceURLs.length === 0) {
+                  resolve(matchingServiceURLs[0])
+                } else {
+                  resolve(preferredServiceURLs[0])
+                }
               }
             })
-            .catch(function(err) {
+            .catch(function (err) {
               console.error('Error obtaining Service URL > ' + (err.error ? err.error : err))
             })
         })
-        .catch(function(err) {
+        .catch(function (err) {
           console.error('Error obtaining Capability URL > ' + (err.error ? err.error : err))
         })
     })
+  }
+
+  /**
+   * Obtain the Resource endpoints (key = value pairs).
+   *
+   * @returns {Promise}
+   */
+  Registry.prototype.getResourceCapabilitiesEndpoints = function () {
+    return this._get(this.resourceCapabilitiesURL, 'text/plain')
   }
 
   /**
@@ -124,12 +147,12 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
    * @param {String} uri   The URI to look up.
    * @returns {Promise}
    */
-  Registry.prototype.getCapabilityURL = function(uri) {
+  Registry.prototype.getCapabilityURL = function (uri) {
     var self = this
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       self
-        ._get(self.resourceCapabilitiesURL, 'text/plain')
-        .then(function(request) {
+        .getResourceCapabilitiesEndpoints()
+        .then(function (request) {
           var capabilityURL
           var asciiOutput = request.responseText
           var asciiLines = asciiOutput.split('\n')
@@ -146,12 +169,15 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
           }
 
           if (!capabilityURL) {
-            reject({ uri: uri, error: new Error('No such URI ' + uri) })
+            reject({
+              uri: uri,
+              error: new Error('No such URI ' + uri)
+            })
           } else {
             resolve(capabilityURL)
           }
         })
-        .catch(function(err) {
+        .catch(function (err) {
           console.error('Error obtaining capability URL > ' + (err.error ? err.error : err))
         })
     })
@@ -165,12 +191,12 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
    * @return {Promise}  Promise creating the XMLHttpRequest.
    * @private
    */
-  Registry.prototype._get = function(url, contentType) {
-    return new Promise(function(resolve, reject) {
+  Registry.prototype._get = function (url, contentType) {
+    return new Promise(function (resolve, reject) {
       var request = new XMLHttpRequest()
       request.addEventListener(
         'load',
-        function() {
+        function () {
           resolve(request)
         },
         false
@@ -178,7 +204,7 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
 
       request.addEventListener(
         'error',
-        function() {
+        function () {
           reject(request.responseText)
         },
         false
@@ -186,7 +212,6 @@ this.Registry = (function(Promise, XMLHttpRequest, DOMParser, undefined) {
 
       request.withCredentials = true
       request.open('GET', url)
-
       request.setRequestHeader('Content-Type', contentType)
       request.send(null)
     })
