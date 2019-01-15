@@ -89,9 +89,7 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
                       nextInterface.getAttribute('xsi:type') === interfaceURI
                     ) {
                       // Actual URL value.
-                      var accessURLElements = nextInterface.getElementsByTagName(
-                        'accessURL'
-                      )
+                      var accessURLElements = nextInterface.getElementsByTagName('accessURL')
                       var serviceURL =
                         accessURLElements.length > 0 ?
                         accessURLElements[0].childNodes[0].nodeValue :
@@ -111,7 +109,11 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
                 var preferredServiceURLs = []
                 for (var msi = 0, msl = matchingServiceURLs.length; msi < msl; msi++) {
                   var nextURL = matchingServiceURLs[msi]
-                  if (preferInsecure === true && nextURL.indexOf('http://') === 0) {
+                  if ((preferInsecure === true && nextURL.indexOf('http://') === 0) ||
+                    (nextURL.indexOf('https://') === 0)) {
+                    preferredServiceURLs.splice(0, 0, nextURL)
+                  } else {
+                    console.warn('Warning: Insecure URL found (' + nextURL + ').  Possible downgrade.')
                     preferredServiceURLs.push(nextURL)
                   }
                 }
