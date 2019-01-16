@@ -110,18 +110,15 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
                 for (var msi = 0, msl = matchingServiceURLs.length; msi < msl; msi++) {
                   var nextURL = matchingServiceURLs[msi]
                   if ((preferInsecure === true && nextURL.indexOf('http://') === 0) ||
-                    (nextURL.indexOf('https://') === 0)) {
+                    ((!preferInsecure || preferInsecure !== true) && nextURL.indexOf('https://') === 0)) {
                     preferredServiceURLs.splice(0, 0, nextURL)
                   } else {
-                    console.warn('Warning: Insecure URL found (' + nextURL + ').  Possible downgrade.')
                     preferredServiceURLs.push(nextURL)
                   }
+
+                  console.log('Now contains ' + preferredServiceURLs.join(' '))
                 }
-                if (preferredServiceURLs.length === 0) {
-                  resolve(matchingServiceURLs[0])
-                } else {
-                  resolve(preferredServiceURLs[0])
-                }
+                resolve(preferredServiceURLs[0])
               }
             })
             .catch(function (err) {

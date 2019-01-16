@@ -51,6 +51,10 @@ testData['https://www.canfar.net/service/beta/capabilities/'] =
   '<accessURL use="base">http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/service/beta/</accessURL>' +
   '</interface>' +
   '<interface xsi:type="uws:Sync" role="std" version="1.1">' +
+  '<accessURL use="base">http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/service/beta/alt/sync</accessURL>' +
+  '<securityMethod standardID="ivo://ivoa.net/sso#cookie" />' +
+  '</interface>' +
+  '<interface xsi:type="uws:Sync" role="std" version="1.1">' +
   '<accessURL use="base">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/service/beta/sync</accessURL>' +
   '<securityMethod standardID="ivo://ivoa.net/sso#cookie" />' +
   '</interface>' +
