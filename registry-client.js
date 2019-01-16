@@ -115,8 +115,6 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
                   } else {
                     preferredServiceURLs.push(nextURL)
                   }
-
-                  console.log('Now contains ' + preferredServiceURLs.join(' '))
                 }
                 resolve(preferredServiceURLs[0])
               }
