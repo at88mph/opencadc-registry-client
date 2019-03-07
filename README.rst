@@ -1,4 +1,4 @@
-opencadc-registry-client (1.2.0)
+opencadc-registry-client (1.2.1)
 ================================
 
 Registry client for CADC and CANFAR services.
@@ -9,6 +9,16 @@ Download
 ::
 
     <script type='application/javascript' src='registry-client.js'></script>
+
+Optimized
+~~~~~~~~~
+
+You may optionally build a webpack (minified) version for a 3.6KB file:
+::
+    npm install
+    npm run dist
+
+This will produce a ``dist/registry-client.min.js`` file.
 
 API
 ---
