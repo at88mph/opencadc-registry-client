@@ -1,10 +1,11 @@
 this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
   'use strict'
 
-  if (!String.prototype.trim) {;
+  if (!String.prototype.trim) {
+    ;
     (function () {
       // Make sure we trim BOM and NBSP
-      var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
+      const rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
       String.prototype.trim = function () {
         return this.replace(rtrim, '')
       }
@@ -19,22 +20,25 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
    * @constructor
    */
   function Registry(opts) {
-    var defaultOptions = {
+    const defaultOptions = {
       resourceCapabilitiesEndPoint: 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/resource-caps'
     }
 
-    var options = opts || {}
+    const options = opts || {}
 
-    this.AUTH_TYPES = {
-      'basic': 'ivo://ivoa.net/sso#BasicAA',
-      'cookie': 'ivo://ivoa.net/sso#cookie',
-      'tls': 'ivo://ivoa.net/sso#tls-with-certificate'
-    }
-
-    this.LINE_CHECKER = /^[\w]+.*$/
     this.resourceCapabilitiesURL =
       options.resourceCapabilitiesEndPoint ||
       defaultOptions.resourceCapabilitiesEndPoint
+  }
+
+  Registry.HTTP_INTERFACE_TYPE = 'vs:ParamHTTP'
+
+  Registry.LINE_CHECKER = /^[\w]+.*$/
+
+  Registry.AUTH_TYPES = {
+    basic: 'ivo://ivoa.net/sso#BasicAA',
+    cookie: 'ivo://ivoa.net/sso#cookie',
+    tls: 'ivo://ivoa.net/sso#tls-with-certificate'
   }
 
   Registry.prototype.getResourceCapabilities = function (serviceCapabilityURL) {
@@ -46,19 +50,21 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
    *
    * @param {String} resourceURI   The Resource URI to lookup.
    * @param {String} standardURI  The Standard ID URI to lookup.
-   * @param {String} interfaceURI The URI of the interface type to pull down.
-   * @param {String} authType  What type of auth to look up ('basic', 'cookie', 'tls').  Optional, defaults to null.
-   * @param {String} preferInsecure  Prefer plain HTTP URLs if True.  Default is null (or false) to return HTTPS URLs.
+   * @param {String} interfaceURI The URI of the interface type to pull down.  Defaults to vs:ParamHTTP.
+   * @param {String} authType  What type of auth to look up ('basic', 'cookie', 'tls').  Optional, defaults to
+   *                          null (Anonymous).
    * @returns {Promise}
    */
   Registry.prototype.getServiceURL = function (
     resourceURI,
     standardURI,
     interfaceURI,
-    authType,
-    preferInsecure
+    authType
   ) {
-    var self = this
+    const self = this
+    const _interfaceURI = interfaceURI ?
+      interfaceURI :
+      Registry.HTTP_INTERFACE_TYPE
     return new Promise(function (resolve, reject) {
       self
         .getCapabilityURL(resourceURI)
@@ -66,67 +72,83 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
           self
             .getResourceCapabilities(serviceCapabilityURL)
             .then(function (request) {
-              var doc =
+              const doc =
                 request.responseXML ||
                 new DOMParser().parseFromString(request.responseText)
-              var capabilityFields = doc.documentElement.getElementsByTagName('capability')
+              const capabilityFields = doc.documentElement.getElementsByTagName(
+                'capability'
+              )
 
-              for (var i = 0, cfl = capabilityFields.length; i < cfl; i++) {
-                var next = capabilityFields[i]
+              for (let i = 0, cfl = capabilityFields.length; i < cfl; i++) {
+                const next = capabilityFields[i]
 
                 if (next.getAttribute('standardID') === standardURI) {
-                  var interfaces = next.getElementsByTagName('interface')
-                  var matchingServiceURLs = []
+                  const interfaces = next.getElementsByTagName('interface')
 
-                  for (var j = 0, il = interfaces.length; j < il; j++) {
-                    var nextInterface = interfaces[j]
-                    var securityMethods = nextInterface.getElementsByTagName('securityMethod')
+                  for (let j = 0, il = interfaces.length; j < il; j++) {
+                    const nextInterface = interfaces[j]
                     if (
-                      ((!authType && securityMethods.length === 0) ||
-                        (authType &&
-                          securityMethods.length > 0 &&
-                          securityMethods[0].getAttribute('standardID') === self.AUTH_TYPES[authType.toLowerCase()])) &&
-                      nextInterface.getAttribute('xsi:type') === interfaceURI
+                      nextInterface.getAttribute('xsi:type') === _interfaceURI
                     ) {
-                      // Actual URL value.
-                      var accessURLElements = nextInterface.getElementsByTagName('accessURL')
-                      var serviceURL =
-                        accessURLElements.length > 0 ?
-                        accessURLElements[0].childNodes[0].nodeValue :
-                        null
+                      if (
+                        self._interfaceSupportsAuthType(authType, nextInterface) === true
+                      ) {
+                        // Actual URL value.
+                        const accessURLElements = nextInterface.getElementsByTagName(
+                          'accessURL'
+                        )
+                        const serviceURL =
+                          accessURLElements.length > 0 ?
+                          accessURLElements[0].childNodes[0].nodeValue :
+                          null
 
-                      if (serviceURL) {
-                        matchingServiceURLs.push(serviceURL)
+                        if (serviceURL) {
+                          resolve(serviceURL)
+                        }
                       }
                     }
                   }
                 }
               }
 
-              if (matchingServiceURLs.length === 0) {
-                reject(new Error('No service URL found'))
-              } else {
-                var preferredServiceURLs = []
-                for (var msi = 0, msl = matchingServiceURLs.length; msi < msl; msi++) {
-                  var nextURL = matchingServiceURLs[msi]
-                  if ((preferInsecure === true && nextURL.indexOf('http://') === 0) ||
-                    ((!preferInsecure || preferInsecure !== true) && nextURL.indexOf('https://') === 0)) {
-                    preferredServiceURLs.splice(0, 0, nextURL)
-                  } else {
-                    preferredServiceURLs.push(nextURL)
-                  }
-                }
-                resolve(preferredServiceURLs[0])
-              }
+              reject(new Error(`No service URL found for \nResource: ${resourceURI}\nStandard: ${standardURI}\nInterface: ${_interfaceURI}\nAuthType: ${authType}`))
             })
             .catch(function (err) {
-              console.error('Error obtaining Service URL > ' + (err.error ? err.error : err))
+              console.error(
+                'Error obtaining Service URL > ' + (err.error ? err.error : err)
+              )
             })
         })
         .catch(function (err) {
-          console.error('Error obtaining Capability URL > ' + (err.error ? err.error : err))
+          console.error(
+            'Error obtaining Capability URL > ' + (err.error ? err.error : err)
+          )
         })
     })
+  }
+
+  Registry.prototype._interfaceSupportsAuthType = function (
+    authType,
+    interfaceElement
+  ) {
+    const securityMethods = interfaceElement.getElementsByTagName(
+      'securityMethod'
+    )
+    if (!authType && securityMethods.length === 0) {
+      return true
+    } else if (securityMethods.length > 0) {
+      for (let smi = 0, sml = securityMethods.length; smi < sml; smi++) {
+        const nextSecurityMethod = securityMethods[smi]
+        const nextSecurityMethodStandard = nextSecurityMethod.getAttribute('standardID')
+
+        if ((!nextSecurityMethodStandard && !authType) ||
+          (authType && nextSecurityMethodStandard === Registry.AUTH_TYPES[authType.toLowerCase()])) {
+          return true
+        }
+      }
+    } else {
+      return false
+    }
   }
 
   /**
@@ -145,19 +167,19 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
    * @returns {Promise}
    */
   Registry.prototype.getCapabilityURL = function (uri) {
-    var self = this
+    const self = this
     return new Promise(function (resolve, reject) {
       self
         .getResourceCapabilitiesEndpoints()
         .then(function (request) {
-          var capabilityURL
-          var asciiOutput = request.responseText
-          var asciiLines = asciiOutput.split('\n')
-          for (var i = 0, all = asciiLines.length; i < all; i++) {
-            var nextLine = asciiLines[i]
-            if (self.LINE_CHECKER.test(nextLine)) {
-              var keyValue = nextLine.split('=')
-              var key = keyValue[0].trim()
+          let capabilityURL
+          const asciiOutput = request.responseText
+          const asciiLines = asciiOutput.split('\n')
+          for (let i = 0, all = asciiLines.length; i < all; i++) {
+            const nextLine = asciiLines[i]
+            if (Registry.LINE_CHECKER.test(nextLine)) {
+              const keyValue = nextLine.split('=')
+              const key = keyValue[0].trim()
               if (key === uri) {
                 capabilityURL = keyValue[1].trim()
                 break
@@ -175,7 +197,9 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
           }
         })
         .catch(function (err) {
-          console.error('Error obtaining capability URL > ' + (err.error ? err.error : err))
+          console.error(
+            'Error obtaining capability URL > ' + (err.error ? err.error : err)
+          )
         })
     })
   }
@@ -190,7 +214,7 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
    */
   Registry.prototype._get = function (url, contentType) {
     return new Promise(function (resolve, reject) {
-      var request = new XMLHttpRequest()
+      const request = new XMLHttpRequest()
       request.addEventListener(
         'load',
         function () {
