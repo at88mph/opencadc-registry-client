@@ -36,12 +36,12 @@ Methods
 +------------+---------------+
 | Function   | Description   |
 +============+===============+
-| ``getServiceURL(resourceURI, standardURI, interfaceURI, authType, preferInsecure)``
-Obtain a service URL endpoint for the given resource and standard IDs. |  - ``{String} resourceURI The Resource URI to lookup.``
-  - ``{String} standardURI The Standard ID URI to lookup.``
-  - ``{String} interfaceURI The URI of the interface type to pull down.``
-  - ``{String} authType What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to null.``
-  - ``@returns {Promise}``
+| ``getServiceURL(resourceURI, standardURI, interfaceURI, authType, preferInsecure)`` | Obtain a service URL endpoint for the given resource and standard IDs. 
+|                                                                                     | - ``{String} resourceURI The Resource URI to lookup.``
+                                                                                      | - ``{String} standardURI The Standard ID URI to lookup.``
+                                                                                      | - ``{String} interfaceURI The URI of the interface type to pull down.``
+                                                                                      | - ``{String} authType What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to null.``
+                                                                                      | - ``@returns {Promise}``
 +------------+---------------+
 | ``getCapabilityURL(uri)``  Obtain the capabilities URL for the given URI. | - ``{String} uri The URI to look up.``
   - ``@returns {Promise}``
