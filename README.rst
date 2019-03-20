@@ -38,9 +38,9 @@ Methods
 +============+===============+
 +------------+---------------+
 
-\|
+|
 ``getServiceURL(resourceURI, standardURI, interfaceURI, authType, preferInsecure)``
-\|
+|
 
 .. raw:: html
 
