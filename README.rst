@@ -36,123 +36,17 @@ Methods
 +------------+---------------+
 | Function   | Description   |
 +============+===============+
+| ``getServiceURL(resourceURI, standardURI, interfaceURI, authType, preferInsecure)``
+Obtain a service URL endpoint for the given resource and standard IDs. |  - ``{String} resourceURI The Resource URI to lookup.``
+  - ``{String} standardURI The Standard ID URI to lookup.``
+  - ``{String} interfaceURI The URI of the interface type to pull down.``
+  - ``{String} authType What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to null.``
+  - ``@returns {Promise}``
++------------+---------------+
+| ``getCapabilityURL(uri)``  Obtain the capabilities URL for the given URI. | - ``{String} uri The URI to look up.``
+  - ``@returns {Promise}``
 +------------+---------------+
 
-|
-``getServiceURL(resourceURI, standardURI, interfaceURI, authType, preferInsecure)``
-|
-
-.. raw:: html
-
-   <p>
-
-.. raw:: html
-
-   <h4>
-
-Obtain a service URL endpoint for the given resource and standard IDs.
-
-.. raw:: html
-
-   </h4>
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
-``{String} resourceURI The Resource URI to lookup.``
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
-``{String} standardURI The Standard ID URI to lookup.``
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
-``{String} interfaceURI The URI of the interface type to pull down.``
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
-``{String} authType What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to null.``
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
-``@returns {Promise}``
-
-.. raw:: html
-
-   </p>
-
-\| \| ``getCapabilityURL(uri)`` \|
-
-.. raw:: html
-
-   <p>
-
-.. raw:: html
-
-   <h4>
-
-Obtain the capabilities URL for the given URI.
-
-.. raw:: html
-
-   </h4>
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
-``{String} uri The URI to look up.``
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
-``@returns {Promise}``
-
-.. raw:: html
-
-   </p>
-
-::
-
-                                                                                                                                                                                                                                                                                |
 
 Obtaining a Service URL
 ~~~~~~~~~~~~~~~~~~~~~~~
