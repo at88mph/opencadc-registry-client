@@ -94,17 +94,7 @@ Obtain a service URL endpoint for the given resource and standard IDs.
 
    <p>
 
-``{String} secureFlag What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to null.``
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
-``{Boolean} preferInsecure Prefer plain HTTP URLs if true.  Default is null (or false) to return HTTPS URLs.``
+``{String} authType What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to null.``
 
 .. raw:: html
 
