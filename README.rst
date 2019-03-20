@@ -30,22 +30,23 @@ API
     // Or a custom capabilities endpiont
     var registryClient = new Registry({resourceCapabilitiesEndPoint:'http://www.mysite.com/reg/resources'})
 
+
 Methods
 ~~~~~~~
 
-+------------+---------------+
-| Function   | Description   |
-+============+===============+
-| ``getServiceURL(resourceURI, standardURI, interfaceURI, authType, preferInsecure)`` | Obtain a service URL endpoint for the given resource and standard IDs. 
-|                                                                                     | - ``{String} resourceURI The Resource URI to lookup.``
-                                                                                      | - ``{String} standardURI The Standard ID URI to lookup.``
-                                                                                      | - ``{String} interfaceURI The URI of the interface type to pull down.``
-                                                                                      | - ``{String} authType What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to null.``
-                                                                                      | - ``@returns {Promise}``
-+------------+---------------+
-| ``getCapabilityURL(uri)``  Obtain the capabilities URL for the given URI. | - ``{String} uri The URI to look up.``
-  - ``@returns {Promise}``
-+------------+---------------+
+=====================================================================================   =========================   ===========================
+Function                                                                                Argument                    Description
+=====================================================================================   =========================   ===========================
+``@return {Promise}`` getServiceURL(resourceURI, standardURI, interfaceURI, authType)   ``{String}`` resourceURI    The Resource URI to lookup.
+
+                                                                                        ``{String}`` standardURI    The Standard ID to lookup.
+
+                                                                                        ``{String}`` interfaceURI   The The URI of the interface type to pull down.
+                                                                                 
+                                                                                        ``{String}`` authType       What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to ``null``.
+
+``@returns {Promise}`` getCapabilityURL(uri)                                            ``{String}`` uri            The URI to look up.
+=====================================================================================   =========================   ===========================
 
 
 Obtaining a Service URL
