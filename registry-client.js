@@ -29,6 +29,15 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
     this.resourceCapabilitiesURL =
       options.resourceCapabilitiesEndPoint ||
       defaultOptions.resourceCapabilitiesEndPoint
+
+    // As of s2419, April 2019, the options passed in to the
+    // registry are ignored in favour of pointing to a local /reg endpoint.
+    // Access to wheree the service actually is deployed is controlled via Apache rules.
+    // TODO: as applications using the registry are altered, remove the 'opts'
+    // entries until this code can be realistically depricated.
+    this.baseURL = window.location.origin
+    this.resourceCapabilitiesURL = this.baseURL + '/reg/resource-caps'
+    this.regApplicationsURL = this.baseURL + '/reg/applications'
   }
 
   Registry.HTTP_INTERFACE_TYPE = 'vs:ParamHTTP'
@@ -161,6 +170,16 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
   }
 
   /**
+   * Obtain the Applications endpoints (key = value pairs).
+   *
+   * @returns {Promise}
+   */
+  Registry.prototype.getApplicationsEndpoints = function () {
+    return this._get(this.regApplicationsURL, 'text/plain')
+  }
+
+
+  /**
    * Obtain the capabilities URL for the given URI.
    *
    * @param {String} uri   The URI to look up.
@@ -201,6 +220,50 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
             'Error obtaining capability URL > ' + (err.error ? err.error : err)
           )
         })
+    })
+  }
+
+  /**
+   * Obtain the applications URL for the given URI.
+   *
+   * @param {String} uri   The URI to look up.
+   * @returns {Promise}
+   */
+  Registry.prototype.getApplicationURL = function (uri) {
+    const self = this
+    return new Promise(function (resolve, reject) {
+      self
+          .getApplicationsEndpoints()
+          .then(function (request) {
+            let applicationURL
+            const asciiOutput = request.responseText
+            const asciiLines = asciiOutput.split('\n')
+            for (let i = 0, all = asciiLines.length; i < all; i++) {
+              const nextLine = asciiLines[i]
+              if (Registry.LINE_CHECKER.test(nextLine)) {
+                const keyValue = nextLine.split('=')
+                const key = keyValue[0].trim()
+                if (key === uri) {
+                  applicationURL = keyValue[1].trim()
+                  break
+                }
+              }
+            }
+
+            if (!applicationURL) {
+              reject({
+                uri: uri,
+                error: new Error('No such URI ' + uri)
+              })
+            } else {
+              resolve(applicationURL)
+            }
+          })
+          .catch(function (err) {
+            console.error(
+                'Error obtaining application URL > ' + (err.error ? err.error : err)
+            )
+          })
     })
   }
 
