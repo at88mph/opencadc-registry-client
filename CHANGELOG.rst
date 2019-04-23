@@ -1,6 +1,12 @@
 Change Log
 ================================
 
+1.2.1 (Released)
+----------------
+
+  * Added webpack configuration.
+
+
 1.2.0 (Released)
 ----------------
 
