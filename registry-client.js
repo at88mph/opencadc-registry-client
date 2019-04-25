@@ -16,26 +16,29 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
    * Registry client constructor.
    *
    * @param {{}} opts   Options to pass in.
-   *        {opts.resourceCapabilitiesEndPoint='https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/resource-caps'}
+   *        {opts.baseURL='https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'}
    * @constructor
    */
   function Registry(opts) {
     const defaultOptions = {
-      resourceCapabilitiesEndPoint: 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/resource-caps'
+      baseURL: 'https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'
     }
 
     const options = opts || {}
 
-    this.resourceCapabilitiesURL =
-      options.resourceCapabilitiesEndPoint ||
-      defaultOptions.resourceCapabilitiesEndPoint
-
     // As of s2419, April 2019, the options passed in to the
-    // registry are ignored in favour of pointing to a local /reg endpoint.
-    // Access to wheree the service actually is deployed is controlled via Apache rules.
-    // TODO: as applications using the registry are altered, remove the 'opts'
-    // entries until this code can be realistically depricated.
-    this.baseURL = window.location.origin
+    // registry are changed to be just a baseURL instead
+    // of the resource-caps endpoint location. This will allow for
+    // the Registry to be configured to point to somewhere other than
+    // production (for deployment to rc or similar.)
+    // Instances which pass nothing in should continue to work as was.
+    // TODO: as applications using the registry are altered, change the
+    // input parameters, if any.
+
+    this.baseURL =
+      options.baseURL ||
+      defaultOptions.baseURL
+
     this.resourceCapabilitiesURL = this.baseURL + '/reg/resource-caps'
     this.regApplicationsURL = this.baseURL + '/reg/applications'
   }
@@ -178,6 +181,31 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
     return this._get(this.regApplicationsURL, 'text/plain')
   }
 
+  /**
+   * Extract URL from request object for uri provided.
+   * Trim before returning URL.
+   *
+   * @param request
+   * @param request
+   * @returns url
+   */
+  Registry.prototype.extractURL = function(request, uri) {
+    let url
+    const asciiOutput = request.responseText
+    const asciiLines = asciiOutput.split('\n')
+    for (let i = 0, all = asciiLines.length; i < all; i++) {
+      const nextLine = asciiLines[i]
+      if (Registry.LINE_CHECKER.test(nextLine)) {
+        const keyValue = nextLine.split('=')
+        const key = keyValue[0].trim()
+        if (key === uri) {
+          url = keyValue[1].trim()
+          break
+        }
+      }
+    }
+    return url
+  }
 
   /**
    * Obtain the capabilities URL for the given URI.
@@ -191,21 +219,7 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
       self
         .getResourceCapabilitiesEndpoints()
         .then(function (request) {
-          let capabilityURL
-          const asciiOutput = request.responseText
-          const asciiLines = asciiOutput.split('\n')
-          for (let i = 0, all = asciiLines.length; i < all; i++) {
-            const nextLine = asciiLines[i]
-            if (Registry.LINE_CHECKER.test(nextLine)) {
-              const keyValue = nextLine.split('=')
-              const key = keyValue[0].trim()
-              if (key === uri) {
-                capabilityURL = keyValue[1].trim()
-                break
-              }
-            }
-          }
-
+          let capabilityURL = this.extractURL(request, uri)
           if (!capabilityURL) {
             reject({
               uri: uri,
@@ -214,7 +228,7 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
           } else {
             resolve(capabilityURL)
           }
-        })
+        }.bind(self) )
         .catch(function (err) {
           console.error(
             'Error obtaining capability URL > ' + (err.error ? err.error : err)
@@ -222,6 +236,7 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
         })
     })
   }
+
 
   /**
    * Obtain the applications URL for the given URI.
@@ -235,21 +250,7 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
       self
           .getApplicationsEndpoints()
           .then(function (request) {
-            let applicationURL
-            const asciiOutput = request.responseText
-            const asciiLines = asciiOutput.split('\n')
-            for (let i = 0, all = asciiLines.length; i < all; i++) {
-              const nextLine = asciiLines[i]
-              if (Registry.LINE_CHECKER.test(nextLine)) {
-                const keyValue = nextLine.split('=')
-                const key = keyValue[0].trim()
-                if (key === uri) {
-                  applicationURL = keyValue[1].trim()
-                  break
-                }
-              }
-            }
-
+            let applicationURL = this.extractURL(request, uri)
             if (!applicationURL) {
               reject({
                 uri: uri,
@@ -258,7 +259,7 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
             } else {
               resolve(applicationURL)
             }
-          })
+          }.bind(self) )
           .catch(function (err) {
             console.error(
                 'Error obtaining application URL > ' + (err.error ? err.error : err)
