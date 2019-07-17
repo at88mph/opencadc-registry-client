@@ -122,19 +122,20 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
                   }
                 }
               }
-
-              reject(new Error(`No service URL found for \nResource: ${resourceURI}\nStandard: ${standardURI}\nInterface: ${_interfaceURI}\nAuthType: ${authType}`))
+              var errorMsg = `No service URL found for \nResource: ${resourceURI}\nStandard: ${standardURI}\nInterface: ${_interfaceURI}\nAuthType: ${authType}`
+              console.error(errorMsg)
+              reject(new Error(errorMsg))
             })
-            .catch(function (err) {
-              console.error(
-                'Error obtaining Service URL > ' + (err.error ? err.error : err)
-              )
+            .catch(function (request) {
+              var errorMsg = 'Could not obtain service URL for URI: ' + resourceURI + ' (' + request.status + ' - ' + request.statusText + ')'
+              console.error(errorMsg)
+              reject(new Error(errorMsg))
             })
         })
         .catch(function (err) {
-          console.error(
-            'Error obtaining Capability URL > ' + (err.error ? err.error : err)
-          )
+          var errorMsg = 'Error obtaining Capability URL: ' + (err.error ? err.error : err)
+          console.error(errorMsg)
+          reject(new Error(errorMsg))
         })
     })
   }
@@ -282,7 +283,14 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
       request.addEventListener(
         'load',
         function () {
-          resolve(request)
+          // 'load' is fired every time the server responds, so
+          // check request.status to determine whether to resolve or
+          // reject the request.
+          if (request.status === 200) {
+            resolve(request)
+          } else {
+            reject(request)
+          }
         },
         false
       )
