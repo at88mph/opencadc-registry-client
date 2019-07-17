@@ -125,14 +125,14 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
 
               reject(new Error(`No service URL found for \nResource: ${resourceURI}\nStandard: ${standardURI}\nInterface: ${_interfaceURI}\nAuthType: ${authType}`))
             })
-            .catch(function (err) {
-              var errorMsg = 'Error obtaining Service URL > ' + (err.error ? err.error : err)
+            .catch(function (request) {
+              var errorMsg = 'Could not obtain service URL for URI: ' + resourceURI + ' (' + request.status + ' - ' + request.statusText + ')'
               reject(new Error(errorMsg))
               console.error(errorMsg)
             })
         })
         .catch(function (err) {
-          var errorMsg = 'Error obtaining Capability URL > ' + (err.error ? err.error : err)
+          var errorMsg = 'Error obtaining Capability URL: ' + (err.error ? err.error : err)
           reject(new Error(errorMsg))
           console.error(errorMsg)
         })
