@@ -126,7 +126,9 @@ this.Registry = (function (Promise, XMLHttpRequest, DOMParser, undefined) {
                 }
               }
               if (found === false) {
-                var errorMsg = `No service URL found for \nResource: ${resourceURI}\nStandard: ${standardURI}\nInterface: ${_interfaceURI}\nAuthType: ${authType}`
+                var errorMsg = 'No service URL found for \nResource: ' + resourceURI
+                               + '\nStandard: ' + standardURI + '\nInterface: ' + _interfaceURI + '\nAuthType: '
+                               + authType
                 console.error(errorMsg)
                 reject(new Error(errorMsg))
               }
