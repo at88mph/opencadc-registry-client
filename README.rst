@@ -1,4 +1,4 @@
-opencadc-registry-client (1.2.1)
+opencadc-registry-client (1.2.2)
 ================================
 
 Registry client for CADC and CANFAR services.
