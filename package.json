@@ -30,7 +30,7 @@
     "terser-webpack-plugin": "^1.2.3",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.2.3",
-    "xmldom": "^0.1.27",
+    "xmldom": "^0.5.0",
     "xmlhttprequest": "^1.8.0"
   },
   "bugs": {
