@@ -49,8 +49,25 @@ Function                                                                        
 
 ``@return {Promise}`` **getApplicationURL(resourceURI)**                                        ``{String}`` resourceURI    The Resource URI to lookup.
 
-``@return {Promise}`` **getApplicationEndpoints()**                                             ````                        .
+``@return {Promise}`` **getApplicationEndpoints()**                                             ````    none                none
 =========================================================================================     =========================   ===========================
+
+
+=========================================================================================     =========================   ===========================
+Function                                                                                      Argument                    Description
+=========================================================================================     =========================   ===========================
+``@return {Promise}`` **getServiceURL(resourceURI, standardURI, interfaceURI, authType)**     ``{String}`` resourceURI    The Resource URI to lookup.
+
+                                                                                              ``{String}`` standardURI    The Standard ID to lookup.
+
+                                                                                              ``{String}`` interfaceURI   The The URI of the interface type to pull down.
+                                                                                 
+                                                                                              ``{String}`` authType       What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to ``null``.
+
+``@returns {Promise}`` **getCapabilityURL(uri)**                                              ``{String}`` uri            The URI to look up.
+=========================================================================================     =========================   ===========================
+
+
 
 
 Obtaining a Service URL
@@ -163,8 +180,8 @@ as well as the newer TAP 1.1 version that will produce a single ``<interface />`
     var registryClient = new Registry()
 
     // Look up the TAP service capabilities.
-    registryClient.getCapabilityURL(
-            'ivo://cadc.nrc.ca/tap'
+    registryClient.getApplicationURL(
+            'ivo://cadc.nrc.ca/gms'
           )
           .then(function(capabilityURL) {
             // Hit the capabilityURL and see the XML
