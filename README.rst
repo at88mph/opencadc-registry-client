@@ -47,9 +47,9 @@ Function                                                                        
 
 ``@returns {Promise}`` **getCapabilityURL(uri)**                                              ``{String}`` uri            The URI to look up.
 
-``@return {Promise}`` **getApplicationURL(resourceURI)**                                      ``{String}`` resourceURI    The Resource URI to lookup.
+``@return {Promise}`` **getApplicationURL(resourceURI)**                                        ``{String}`` resourceURI    The Resource URI to lookup.
 
-``@return {Promise}`` **getApplicationEndpoints()**                                            ````
+``@return {Promise}`` **getApplicationEndpoints()**                                             ````                        .
 =========================================================================================     =========================   ===========================
 
 
@@ -159,3 +159,15 @@ Note that capability documents can vary.  As of version 1.2.0, the library suppo
 both the multiple ``<interface />`` style each with its own ``<accessURL />`` and ``<securityMethod />``,
 as well as the newer TAP 1.1 version that will produce a single ``<interface />`` with multiple ``<securityMethod />`` tags.
 ::
+
+    var registryClient = new Registry()
+
+    // Look up the TAP service capabilities.
+    registryClient.getCapabilityURL(
+            'ivo://cadc.nrc.ca/tap'
+          )
+          .then(function(capabilityURL) {
+            // Hit the capabilityURL and see the XML
+          }).catch(function(err) {
+            console.error('Error obtaining Capability URL > ' + err)
+          })
