@@ -27,9 +27,8 @@ API
 
     var registryClient = new Registry()
 
-    // Or a custom capabilities endpiont
-    var registryClient = new Registry({resourceCapabilitiesEndPoint:'http://www.mysite.com/reg/resources'})
-
+    // Or a custom registry location
+    var registryClient = new Registry({baseURL:'http://www.mysite.com'})
 
 Methods
 ~~~~~~~
@@ -47,6 +46,10 @@ Function                                                                        
                                                                                               ``{String}`` authType       What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to ``null``.
 
 ``@returns {Promise}`` **getCapabilityURL(uri)**                                              ``{String}`` uri            The URI to look up.
+
+``@return {Promise}`` **getApplicationURL(resourceURI)**                                      ``{String}`` resourceURI    The Resource URI to lookup.
+
+``@return {Promise}`` **getApplicationEndpoints()**                                            ````
 =========================================================================================     =========================   ===========================
 
 
@@ -148,3 +151,11 @@ as well as the newer TAP 1.1 version that will produce a single ``<interface />`
           }).catch(function(err) {
             console.error('Error obtaining Capability URL > ' + err)
           })
+
+Obtaining an Application URL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Note that capability documents can vary.  As of version 1.2.0, the library supports
+both the multiple ``<interface />`` style each with its own ``<accessURL />`` and ``<securityMethod />``,
+as well as the newer TAP 1.1 version that will produce a single ``<interface />`` with multiple ``<securityMethod />`` tags.
+::
