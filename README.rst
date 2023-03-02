@@ -66,7 +66,7 @@ Function                                                                        
 
 ``@returns {Promise}`` **getCapabilityURL(uri)**                                              ``{String}`` uri            The URI to look up.
 ``@returns {Promise}`` **getApplicationURL(uri)**                                              ``{String}`` uri            The URI to look up.
-``@returns {Promise}`` **getApplicationEndpoints()**                                            ```` n/a            n/a
+``@returns {Promise}`` **getApplicationEndpoints()**                                            ````                        Returns the list of available applications from /reg/applications endpoint
 =========================================================================================     =========================   ===========================
 
 
