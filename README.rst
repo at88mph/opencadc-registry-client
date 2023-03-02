@@ -65,6 +65,7 @@ Function                                                                        
                                                                                               ``{String}`` authType       What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to ``null``.
 
 ``@returns {Promise}`` **getCapabilityURL(uri)**                                              ``{String}`` uri            The URI to look up.
+``@returns {Promise}`` **getApplicationURL(uri)**                                              ``{String}`` uri            The URI to look up.
 =========================================================================================     =========================   ===========================
 
 
