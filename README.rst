@@ -27,9 +27,8 @@ API
 
     var registryClient = new Registry()
 
-    // Or a custom capabilities endpiont
-    var registryClient = new Registry({resourceCapabilitiesEndPoint:'http://www.mysite.com/reg/resources'})
-
+    // Or a custom registry location
+    var registryClient = new Registry({baseURL:'http://www.mysite.com'})
 
 Methods
 ~~~~~~~
@@ -38,16 +37,20 @@ Methods
 =========================================================================================     =========================   ===========================
 Function                                                                                      Argument                    Description
 =========================================================================================     =========================   ===========================
-``@return {Promise}`` **getServiceURL(resourceURI, standardURI, interfaceURI, authType)**     ``{String}`` resourceURI    The Resource URI to lookup.
+``@return {Promise}`` **getServiceURL(resourceURI, standardURI, interfaceURI, authType)**     ``{String}`` resourceURI    The Resource URI to look up from the reg/resouce-caps endpoint
 
-                                                                                              ``{String}`` standardURI    The Standard ID to lookup.
+                                                                                              ``{String}`` standardURI    The Standard ID to look up.
 
-                                                                                              ``{String}`` interfaceURI   The The URI of the interface type to pull down.
+                                                                                              ``{String}`` interfaceURI   The URI of the interface type to get.
                                                                                  
                                                                                               ``{String}`` authType       What type of auth to look up ('basic', 'cookie', 'tls').  The 'tls' value will require a client certificate.  Optional, defaults to ``null``.
 
-``@returns {Promise}`` **getCapabilityURL(uri)**                                              ``{String}`` uri            The URI to look up.
+``@returns {Promise}`` **getCapabilityURL(uri)**                                              ``{String}`` uri            The resource URI to look up.
+``@returns {Promise}`` **getApplicationURL(resourceURI)**                                              ``{String}`` uri            The resource URI to look up from the /reg/applications endpoint
+``@returns {Promise}`` **getApplicationEndpoints()**                                            ``{}``      <none>              Promise returns the list of available applications from /reg/applications endpoint, listed by resourceURI
 =========================================================================================     =========================   ===========================
+
+
 
 
 Obtaining a Service URL
@@ -147,4 +150,42 @@ as well as the newer TAP 1.1 version that will produce a single ``<interface />`
             // Hit the capabilityURL and see the XML
           }).catch(function(err) {
             console.error('Error obtaining Capability URL > ' + err)
+          })
+
+Obtaining an Application URL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    var registryClient = new Registry()
+
+    // Look up the TAP service capabilities.
+    registryClient.getApplicationURL(
+            'ivo://cadc.nrc.ca/gms'
+          )
+          .then(function(applicationURL) {
+            // Store the variable for use later in your code
+          }).catch(function(err) {
+            console.error('Error obtaining Application URL > ' + err)
+          })
+          
+          
+Obtaining all Application URLs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For some cases, getting the entire list of application endpoints 
+at once is more practical than one call at a time. 
+::
+
+    var registryClient = new Registry()
+
+    // Look up the TAP service capabilities.
+    registryClient.getApplicationsEndpoints(
+            'ivo://cadc.nrc.ca/gms'
+          )
+          .then(function(applicationURLList) {
+            // Parse out the key=value pairs, matching resource URIs
+            // against keys
+          }).catch(function(err) {
+            console.error('Error obtaining Application URL list > ' + err)
           })
